@@ -46,8 +46,24 @@ function runmonitor(visinet, mconf){
 			psout = pingserver(visinet, mconf, monurl);
 			if(psout){ // First request has no psout
 				visinet.gfunctions.logd(visinet, psout)
-				setPSRLPoint(visinet, mconf, psout.received / psout.sent * 100, "pingout", "received/sent", "8.8.8.8")
-				setPSRLPoint(visinet, mconf, psout.lost / psout.sent * 100, "pingout", "lost/sent", "8.8.8.8")
+				setPSRLPoint(visinet, mconf, psout.received / psout.sent * 100, "pingout", "received/sent", monurl)
+				setPSRLPoint(visinet, mconf, psout.lost / psout.sent * 100, "pingout", "lost/sent", monurl)
+				
+				// Reply Time
+				visinet.gfunctions.writePoint(visinet, "common_server_ping", psout.replytime, [
+					{
+						name: "outform",
+						value: "reply"
+					},
+					{
+						name: "pingout",
+						value: "avg_time"
+					},
+					{
+						name: "url",
+						value: monurl
+					}
+				])
 			}
 			
 		}, mconf.interval)
@@ -66,13 +82,15 @@ function pingserver(visinet, mconf, url){
 			packetsrl_lost = packetsrl_parse[2].split(" = ")[1].split(" ")[0]
 			
 			reply = stdout.toString().split("\n")[2];
+			replytime = reply.split(": ")[1].split(" ")[1].split("=")[1].replace("ms", "")
 			
 			pingobj = {
 				psrl: packetsrl,
 				sent: packetsrl_sent,
 				received: packetsrl_received,
 				lost: packetsrl_lost,
-				reply: reply
+				reply: reply,
+				replytime: replytime
 			};
 			
 			visinet.gfunctions.logd(visinet, `Packet Sent: ${pingobj.sent}`)
@@ -94,14 +112,18 @@ function pingserver(visinet, mconf, url){
 			packetsrl_lost_perc = packetsrl_parse[2].replace("% packet loss", "")
 			packetsrl_lost = packetsrl_lost_perc / 100 * packetsrl_sent
 			
-			reply = stdout.toString().split("\n")[2];
+			reply = stdout.toString().split("\n")[1];
+			
+			times = stdout.toString().split("\n")[5]
+			replytime = reply.split("/")[4]
 			
 			pingobj = {
 				psrl: packetsrl,
 				sent: packetsrl_sent,
 				received: packetsrl_received,
 				lost: packetsrl_lost,
-				reply: reply
+				reply: reply,
+				replytime: replytime
 			};
 			
 			visinet.gfunctions.logd(visinet, `Packet Sent: ${pingobj.sent}`)
