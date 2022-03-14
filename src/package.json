@@ -9,6 +9,7 @@
   "author": "charmines",
   "license": "GPL-3.0",
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.23.0",
     "enmap": "^5.8.8"
   }
 }

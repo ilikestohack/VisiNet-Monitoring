@@ -19,7 +19,8 @@
 // Global object for cross-modules
 visinet = {
 	config: require("../userdata/config.json"), // Load Config File
-	gfunctions: {}
+	gfunctions: {},
+	cmonitorvars: {}
 }
 
 // Node Modules

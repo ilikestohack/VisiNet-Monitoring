@@ -1,0 +1,21 @@
+{
+	"module_logging": {
+		"consoledebug": "true",
+		"filedebug": "true"
+	},
+	"influxdb": {
+		"url": "INFLUX_URL",
+		"token": "INFLUX_TOKEN",
+		"org": "INFLUX_ORG",
+		"bucket": "INFLUX_BUCKET"
+	},
+	"monitors": {
+		"common_server_ping": {
+			"run": "true",
+			"interval": 5000,
+			"servers": ["8.8.8.8", "1.1.1.1"]
+		}
+	},
+	"operating_system": "windows",
+	"runtests": "true"
+}
