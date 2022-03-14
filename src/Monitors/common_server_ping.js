@@ -18,6 +18,7 @@
 
 // Node Modules
 const { exec } = require('child_process');
+const shortid = require('shortid').generate;
 
 exports.run = function(visinet, mconf){
 	// Config Check
@@ -27,7 +28,9 @@ exports.run = function(visinet, mconf){
 		if(mconf.run == "true"){
 			
 			// Create Custom Monitor Variable Object
-			visinet.cmonitorvars.common_server_ping = {};
+			visinet.cmonitorvars.common_server_ping = {
+				pingobjs: {}
+			};
 			// Run Monitor
 			runmonitor(visinet, mconf)
 			
@@ -40,31 +43,10 @@ exports.run = function(visinet, mconf){
 
 function runmonitor(visinet, mconf){
 	mconf.servers.forEach(function(monurl){
-		setInterval(function(){
+		setInterval(async function(){
 			
 			// Monitor Code Here
-			psout = pingserver(visinet, mconf, monurl);
-			if(psout){ // First request has no psout
-				visinet.gfunctions.logd(visinet, psout)
-				setPSRLPoint(visinet, mconf, psout.received / psout.sent * 100, "pingout", "received/sent", monurl)
-				setPSRLPoint(visinet, mconf, psout.lost / psout.sent * 100, "pingout", "lost/sent", monurl)
-				
-				// Reply Time
-				visinet.gfunctions.writePoint(visinet, "common_server_ping", psout.replytime, [
-					{
-						name: "outform",
-						value: "reply"
-					},
-					{
-						name: "pingout",
-						value: "avg_time"
-					},
-					{
-						name: "url",
-						value: monurl
-					}
-				])
-			}
+			pingserver(visinet, mconf, monurl);
 			
 		}, mconf.interval)
 	})
@@ -82,7 +64,12 @@ function pingserver(visinet, mconf, url){
 			packetsrl_lost = packetsrl_parse[2].split(" = ")[1].split(" ")[0]
 			
 			reply = stdout.toString().split("\n")[2];
-			replytime = reply.split(": ")[1].split(" ")[1].split("=")[1].replace("ms", "")
+			replytimebs = reply.split(": ")[1].split(" ")[1];
+			if(replytimebs.split("=")[1]){
+				replytime = reply.split(": ")[1].split(" ")[1].split("=")[1].replace("ms", "")
+			}else{
+				replytime = reply.split(": ")[1].split(" ")[1].split("<")[1].replace("ms", "")
+			}
 			
 			pingobj = {
 				psrl: packetsrl,
@@ -93,12 +80,12 @@ function pingserver(visinet, mconf, url){
 				replytime: replytime
 			};
 			
-			visinet.gfunctions.logd(visinet, `Packet Sent: ${pingobj.sent}`)
-			visinet.gfunctions.logd(visinet, `Packet Recieved: ${pingobj.received}`)
-			visinet.gfunctions.logd(visinet, `Packet Lost: ${pingobj.lost}`)
-			visinet.gfunctions.logd(visinet, `Reply: ${pingobj.reply}`)
+			visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `Packet Sent: ${pingobj.sent}`)
+			visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `Packet Recieved: ${pingobj.received}`)
+			visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `Packet Lost: ${pingobj.lost}`)
+			visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `Reply: ${pingobj.reply}`)
 			
-			visinet.cmonitorvars.common_server_ping.pingobj = pingobj;
+			performDBCalls(visinet, mconf, url, pingobj)
 		});
 		
 	}else if(visinet.config.operating_system == "linux"){
@@ -126,18 +113,17 @@ function pingserver(visinet, mconf, url){
 				replytime: replytime
 			};
 			
-			visinet.gfunctions.logd(visinet, `Packet Sent: ${pingobj.sent}`)
-			visinet.gfunctions.logd(visinet, `Packet Recieved: ${pingobj.received}`)
-			visinet.gfunctions.logd(visinet, `Packet Lost: ${pingobj.lost}`)
-			visinet.gfunctions.logd(visinet, `Reply: ${pingobj.reply}`)
+			visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `Packet Sent: ${pingobj.sent}`)
+			visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `Packet Recieved: ${pingobj.received}`)
+			visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `Packet Lost: ${pingobj.lost}`)
+			visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `Reply: ${pingobj.reply}`)
 			
-			visinet.cmonitorvars.common_server_ping.pingobj = pingobj;
+			performDBCalls(visinet, mconf, url, pingobj)
 		});
 		
 	}else{
 		visinet.gfunctions.log(visinet, "{Monitor: common_server_ping} OS Not Supported Yet")
 	}
-	return visinet.cmonitorvars.common_server_ping.pingobj;
 }
 
 function setPSRLPoint(visinet, mconf, val, tagname, tagval, url){
@@ -153,6 +139,28 @@ function setPSRLPoint(visinet, mconf, val, tagname, tagval, url){
 		{
 			name: "url",
 			value: url
+		}
+	])
+}
+
+function performDBCalls(visinet, mconf, monurl, psout){
+	visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", psout)
+	setPSRLPoint(visinet, mconf, psout.received / psout.sent * 100, "pingout", "received/sent", monurl)
+	setPSRLPoint(visinet, mconf, psout.lost / psout.sent * 100, "pingout", "lost/sent", monurl)
+	
+	// Reply Time
+	visinet.gfunctions.writePoint(visinet, "common_server_ping", psout.replytime, [
+		{
+			name: "outform",
+			value: "reply"
+		},
+		{
+			name: "pingout",
+			value: "avg_time"
+		},
+		{
+			name: "url",
+			value: monurl
 		}
 	])
 }

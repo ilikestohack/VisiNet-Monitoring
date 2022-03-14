@@ -16,10 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-exports.run = function(){ return "Function Runing Disabled" }
+// Node Modules
+const fs = require("fs");
+
+exports.run = function(visinet){
+	visinet.logs = {};
+	visinet.logs.debugLog = fs.createWriteStream('../userdata/logs/debug.log', { flags: 'a' /* append */ });
+	visinet.logs.log = fs.createWriteStream('../userdata/logs/log.log', { flags: 'a' /* append */ });	
+}
 
 function log(visinet, text){
 	console.log("[Logging]", text)
+	visinet.logs.log.write(JSON.stringify(text) + "\n")
 }
 
 function logd(visinet, text){
@@ -28,12 +36,25 @@ function logd(visinet, text){
 	}
 	if(visinet.config.module_logging.filedebug == "true"){
 		// File debugging goes here
+		visinet.logs.debugLog.write(JSON.stringify(text) + "\n")
+	}
+}
+
+function logDCustom(visinet, name, text){
+	if(visinet.config.module_logging.custom){
+		if(visinet.config.module_logging.custom[name] == "true"){ logd(visinet, `\{${name}\} ${text}`) }
+		if(visinet.config.module_logging.custom[name] == "true" || visinet.config.module_logging.custom[name] == "file"){
+			if(!visinet.logs[name]){
+				visinet.logs[name] = fs.createWriteStream(`../userdata/logs/${name}.log`, { flags: 'a' /* append */ });	
+			}
+			visinet.logs[name].write(JSON.stringify(text) + "\n")
+		}
 	}
 }
 
 exports.info = {
 	name: "logging",
-	load: false,
+	load: true,
 	gfuncs: [
 		{
 			name: "log",
@@ -42,6 +63,10 @@ exports.info = {
 		{
 			name: "logd",
 			func: logd
+		},
+		{
+			name: "logDCustom",
+			func: logDCustom
 		}
 	]
 }

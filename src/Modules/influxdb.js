@@ -39,7 +39,7 @@ function writePoint(visinet, sensorid, val, tags){
 	writeApi.writePoint(point)
 	
 	writeApi.close().then(() => {
-	  visinet.gfunctions.logd(visinet, "{Influx DB} WRITE FINISHED: " + val)
+	  visinet.gfunctions.logDCustom(visinet, "InfluxDB-write_info", "{Influx DB} WRITE FINISHED: " + val)
 	})
 }
 
