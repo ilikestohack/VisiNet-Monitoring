@@ -20,7 +20,8 @@
 visinet = {
 	config: require("../userdata/config.json"), // Load Config File
 	gfunctions: {},
-	cmonitorvars: {}
+	cmonitorvars: {},
+	cmodulesvars: {}
 }
 
 // Node Modules

@@ -19,12 +19,14 @@
 // Node Modules
 const {InfluxDB, Point} = require("@influxdata/influxdb-client")
 
-exports.run = function(){ return "Function Runing Disabled" }
+exports.run = function(visinet){
+	visinet.cmodulesvars.influxdb = {}
+	visinet.cmodulesvars.influxdb.influxDB = new InfluxDB(visinet.config.influxdb);
+	visinet.cmodulesvars.influxdb.writeApi = visinet.cmodulesvars.influxdb.influxDB.getWriteApi(visinet.config.influxdb.org, visinet.config.influxdb.bucket)
+	visinet.cmodulesvars.influxdb.queryAPI = visinet.cmodulesvars.influxdb.influxDB.getQueryApi(visinet.config.influxdb.org);
+}
 
 function writePoint(visinet, sensorid, val, tags){
-	influxDB = new InfluxDB(visinet.config.influxdb);
-	writeApi = influxDB.getWriteApi(visinet.config.influxdb.org, visinet.config.influxdb.bucket)
-	
 	point = new Point("network_data")
 	  .tag("sensor_id", sensorid)
 	  .floatField("value", val)
@@ -36,12 +38,14 @@ function writePoint(visinet, sensorid, val, tags){
 		})
 	}
 	
-	writeApi.writePoint(point)
+	visinet.cmodulesvars.influxdb.writeApi.writePoint(point)
 	
-	writeApi.close().then(() => {
-	  visinet.gfunctions.logDCustom(visinet, "InfluxDB-write_info", "{Influx DB} WRITE FINISHED: " + val)
+	visinet.cmodulesvars.influxdb.writeApi.close().then(() => {
+	  visinet.gfunctions.logDCustom(visinet, "InfluxDB-write_info", `{Influx DB} WRITE FINISHED Writer: ${sensorid}, Value: ${val}`)
 	})
 }
+
+// function getPoint(visinet, sensorid,) // IDK FLUX
 
 exports.info = {
 	name: "influxdb",

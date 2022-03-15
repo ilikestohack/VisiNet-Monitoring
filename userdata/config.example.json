@@ -1,7 +1,11 @@
 {
 	"module_logging": {
 		"consoledebug": "true",
-		"filedebug": "true"
+		"filedebug": "true",
+		"custom": {
+			"custom_server_ping-ping_data": "file",
+			"InfluxDB-write_info": "file"
+		}
 	},
 	"influxdb": {
 		"url": "INFLUX_URL",
@@ -13,7 +17,12 @@
 		"common_server_ping": {
 			"run": "true",
 			"interval": 5000,
-			"servers": ["8.8.8.8", "1.1.1.1"]
+			"servers": ["8.8.8.8", "1.1.1.1", "192.168.1.1"]
+		},
+		"dns_tester": {
+			"run": "true",
+			"interval": "10000",
+			"servers": ["192.168.1.1", "1.1.1.1", "8.8.8.8"]
 		}
 	},
 	"operating_system": "windows",

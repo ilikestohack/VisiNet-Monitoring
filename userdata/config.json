@@ -1,7 +1,0 @@
-{
-	"module_logging": {
-		"consoledebug": "true",
-		"filedebug": "true"
-	},
-	"runtests": "true"
-}
