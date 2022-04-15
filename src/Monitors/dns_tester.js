@@ -28,41 +28,40 @@ exports.run = function(visinet, mconf){
 		if(mconf.run == "true"){
 			
 			// Run Monitor
-			runmonitor(visinet, mconf)
+			mconf.servers.forEach(function(monurl){
+				resolver = new Resolver();
+				resolver.setServers([monurl]);
+				
+				runmonitor(visinet, mconf, resolver, monurl)
+				setInterval(function(){
+					runmonitor(visinet, mconf, resolver, monurl)
+				}, mconf.interval)
+			})
 			
 		}
 		
 	}else{
-		visinet.gfunctions.log(visinet, "{Monitor: common_server_ping} No configuration found")
+		visinet.gfunctions.log(visinet, "{Monitor: dns_tester} No configuration found")
 	}
 }
 
-function runmonitor(visinet, mconf){
-	mconf.servers.forEach(function(monurl){
-		resolver = new Resolver();
-		resolver.setServers([monurl]);
+function runmonitor(visinet, mconf, resolver, monurl){			
+	// Monitor Code Here
+	resolver.resolve4('google.com', (err, addresses) => {
 		
-		setInterval(function(){
-			
-			// Monitor Code Here
-			resolver.resolve4('google.com', (err, addresses) => {
-				
-				if(err){
-					out = 0;
-				}else if(addresses){
-					out = 1;
-				}else{ out = 0; }
-				
-				if(err){ visinet.gfunctions.logDCustom(visinet, "dns_tester-resolve_out", "Error Recieved: " + err) }
-				visinet.gfunctions.logDCustom(visinet, "dns_tester-resolve_out", "Addresses Recieved: " + addresses)
-				
-				visinet.gfunctions.writePoint(visinet, "dns_tester", out, [{
-					name: "server",
-					value: monurl
-				}])
-			  
-			});
-			
-		}, mconf.interval)
-	})
+		if(err){
+			out = "Unavailable";
+		}else if(addresses){
+			out = "Successful";
+		}else{ out = "Unavailable"; }
+		
+		if(err){ visinet.gfunctions.logDCustom(visinet, "dns_tester-resolve_out", "Error Recieved: " + err) }
+		visinet.gfunctions.logDCustom(visinet, "dns_tester-resolve_out", "Addresses Recieved: " + addresses)
+		
+		visinet.gfunctions.writePoint(visinet, "dns_tester", out, "s", [{
+			name: "server",
+			value: monurl
+		}])
+	  
+	});
 }

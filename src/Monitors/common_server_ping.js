@@ -64,11 +64,15 @@ function pingserver(visinet, mconf, url){
 			packetsrl_lost = packetsrl_parse[2].split(" = ")[1].split(" ")[0]
 			
 			reply = stdout.toString().split("\n")[2];
-			replytimebs = reply.split(": ")[1].split(" ")[1];
-			if(replytimebs.split("=")[1]){
-				replytime = reply.split(": ")[1].split(" ")[1].split("=")[1].replace("ms", "")
+			if(reply.split(": ")[1]){
+				replytimebs = reply.split(": ")[1].split(" ")[1];
+				if(replytimebs.split("=")[1]){
+					replytime = replytimebs.split("=")[1].replace("ms", "")
+				}else{
+					replytime = replytimebs.split("<")[1].replace("ms", "")
+				}
 			}else{
-				replytime = reply.split(": ")[1].split(" ")[1].split("<")[1].replace("ms", "")
+				visinet.gfunctions.logDCustom(visinet, "custom_server_ping-ping_data", `ERROR Ping to ip ${url} returned unsplitable at ":"`)
 			}
 			
 			pingobj = {
@@ -127,7 +131,7 @@ function pingserver(visinet, mconf, url){
 }
 
 function setPSRLPoint(visinet, mconf, val, tagname, tagval, url){
-	visinet.gfunctions.writePoint(visinet, "common_server_ping", val, [
+	visinet.gfunctions.writePoint(visinet, "common_server_ping", val, "f", [
 		{
 			name: "outform",
 			value: "packetSRL"
@@ -149,7 +153,7 @@ function performDBCalls(visinet, mconf, monurl, psout){
 	setPSRLPoint(visinet, mconf, psout.lost / psout.sent * 100, "pingout", "lost/sent", monurl)
 	
 	// Reply Time
-	visinet.gfunctions.writePoint(visinet, "common_server_ping", psout.replytime, [
+	visinet.gfunctions.writePoint(visinet, "common_server_ping", psout.replytime, "f", [
 		{
 			name: "outform",
 			value: "reply"

@@ -16,40 +16,53 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
  
-// Node Modules
-const {InfluxDB, Point} = require("@influxdata/influxdb-client")
-
 exports.run = function(visinet){
 	visinet.cmodulesvars.influxdb = {}
-	visinet.cmodulesvars.influxdb.influxDB = new InfluxDB(visinet.config.influxdb);
-	visinet.cmodulesvars.influxdb.writeApi = visinet.cmodulesvars.influxdb.influxDB.getWriteApi(visinet.config.influxdb.org, visinet.config.influxdb.bucket)
-	visinet.cmodulesvars.influxdb.queryAPI = visinet.cmodulesvars.influxdb.influxDB.getQueryApi(visinet.config.influxdb.org);
+	visinet.cmodulesvars.influxdb.influxDB = require('influxdb-nodejs');
+	visinet.cmodulesvars.influxdb.client = new visinet.cmodulesvars.influxdb.influxDB(`http://${visinet.config.influxdb.username}:${visinet.config.influxdb.password}@${visinet.config.influxdb.url}/${visinet.config.influxdb.db}?auth=basic`)
 }
 
-function writePoint(visinet, sensorid, val, tags){
-	point = new Point("network_data")
-	  .tag("sensor_id", sensorid)
-	  .floatField("value", val)
+function writePoint(visinet, sensorid, val, schema, tagsin){
+	const fieldSchema = {
+	  value: schema
+	};
+	tagSchema = {
+		"sensor_id": "*"
+	};
+	tags = {
+		"sensor_id": sensorid
+	};
+	fieldjson = {};
 	
-	// Load custom tags
-	if(tags){
-		tags.forEach(function(item,index){
-			point.tag(item.name, item.value)
+	if(schema == "i"){
+		fieldjson.integer = val;
+	}else if(schema == "s"){
+		fieldjson.string = val;
+	}else if(schema == "f"){
+		fieldjson.value = val;
+	}else if(schema == "b"){
+		fieldjson.boolean = val;
+	}
+	
+	if(tagsin){
+		tagsin.forEach(function(item,index){
+			tagSchema[item.name] = '*';
+			tags[item.name] = item.value;
 		})
 	}
 	
-	visinet.cmodulesvars.influxdb.writeApi.writePoint(point)
+	visinet.cmodulesvars.influxdb.client.schema('network_data', fieldSchema, tagSchema, {});
 	
-	visinet.cmodulesvars.influxdb.writeApi.close().then(() => {
-	  visinet.gfunctions.logDCustom(visinet, "InfluxDB-write_info", `{Influx DB} WRITE FINISHED Writer: ${sensorid}, Value: ${val}`)
-	})
+	visinet.cmodulesvars.influxdb.client.write('network_data')
+		.tag(tags)
+		.field(fieldjson)
+	  .then(() => visinet.gfunctions.logDCustom(visinet, "InfluxDB-write_info", `{Influx DB} WRITE FINISHED Writer: ${sensorid}, Value: ${val}`))
+	  .catch(console.error);
 }
-
-// function getPoint(visinet, sensorid,) // IDK FLUX
 
 exports.info = {
 	name: "influxdb",
-	load: false, // Not Finished
+	load: true,
 	gfuncs: [
 		{
 			name: "writePoint",

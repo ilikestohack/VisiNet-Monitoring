@@ -4,14 +4,16 @@
 		"filedebug": "true",
 		"custom": {
 			"custom_server_ping-ping_data": "file",
-			"InfluxDB-write_info": "file"
+			"InfluxDB-write_info": "file",
+			"dns_tester-resolve_out": "file",
+			"network_issue-query_out": "file"
 		}
 	},
 	"influxdb": {
-		"url": "INFLUX_URL",
-		"token": "INFLUX_TOKEN",
-		"org": "INFLUX_ORG",
-		"bucket": "INFLUX_BUCKET"
+		"url": "INFLUX IP:PORT",
+		"username": "INFLUX USERNAME",
+		"password": "INFLUX PASSWORD",
+		"db": "INFLUX BUCKET/DB"
 	},
 	"monitors": {
 		"common_server_ping": {
@@ -23,6 +25,13 @@
 			"run": "true",
 			"interval": "10000",
 			"servers": ["192.168.1.1", "1.1.1.1", "8.8.8.8"]
+		},
+		"network_issue": {
+			"run": "true",
+			"interval": "15000",
+			"lan_check_ip": "192.168.1.44",
+			"dns_check_server": "192.168.1.44",
+			"wan_check_ip": "1.1.1.1"
 		}
 	},
 	"operating_system": "windows",

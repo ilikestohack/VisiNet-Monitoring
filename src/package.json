@@ -11,6 +11,7 @@
   "dependencies": {
     "@influxdata/influxdb-client": "^1.23.0",
     "enmap": "^5.8.8",
+    "influxdb-nodejs": "^3.1.0",
     "shortid": "^2.2.16"
   }
 }

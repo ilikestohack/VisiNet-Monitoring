@@ -18,20 +18,20 @@
 
 exports.run = function(visinet){
 	// Write Point to Influx
-	visinet.gfunctions.writePoint(visinet, "test_infux", 100)
+	visinet.gfunctions.writePoint(visinet, "test_infux", 100, "f")
 	
 	// Reset Point
 	setTimeout(function(){
-		visinet.gfunctions.writePoint(visinet, "test_infux", 0)
+		visinet.gfunctions.writePoint(visinet, "test_infux", 0, "f")
 	}, 8000)
 	
 	// Back to 50
 	setTimeout(function(){
-		visinet.gfunctions.writePoint(visinet, "test_infux", 50)
+		visinet.gfunctions.writePoint(visinet, "test_infux", 50, "f")
 	}, 16000)
 	
 	// Reset Point
 	setTimeout(function(){
-		visinet.gfunctions.writePoint(visinet, "test_infux", 0)
+		visinet.gfunctions.writePoint(visinet, "test_infux", 0, "f")
 	}, 24000)
 }
