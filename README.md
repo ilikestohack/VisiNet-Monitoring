@@ -3,9 +3,10 @@
 
 ## Setup
 1. [Install InfluxDB](https://docs.influxdata.com/influxdb/v2.1/install/) by following the steps to install and configure your bucket
-2. Copy `config.example.json` to `config.json`
-3. Fill in the config.json file using the guild below
-4. Run VisiNet Monitoring using the run.bat script on windows or node . in a CLI
+2. [Setup User/Pass Auth on InfluxDB](https://docs.influxdata.com/influxdb/v2.1/reference/api/influxdb-1x/#authenticate-with-a-username-and-password-scheme)
+3. Copy `config.example.json` to `config.json`
+4. Fill in the config.json file using the guild below
+5. Run VisiNet Monitoring using the run.bat script on windows or node . in a CLI
 
 ## Configuration
 ```json
@@ -20,7 +21,7 @@
 			"network_issue-query_out": "file"
 		}
 	},
-	"influxdb": { // Does not currently support org/token methods [see this](https://docs.influxdata.com/influxdb/v2.1/reference/api/influxdb-1x/#authenticate-with-a-username-and-password-scheme)
+	"influxdb": { // Does not currently support org/token methods see Setup
 		"url": "INFLUX IP:PORT", // The IP:Port of your Influx instance for example 192.168.1.2:8086
 		"username": "INFLUX USERNAME", // The Username for your Influx instance
 		"password": "INFLUX PASSWORD", // The Password for your Influx instance
