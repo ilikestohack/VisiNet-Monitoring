@@ -32,6 +32,22 @@
 			"lan_check_ip": "192.168.1.44",
 			"dns_check_server": "192.168.1.44",
 			"wan_check_ip": "1.1.1.1"
+		},
+		"nmap_check": {
+			"run": "true",
+			"interval": "10000",
+			"checks": [
+				{
+					"host": "192.168.1.40",
+					"port": 25565,
+					"type": "tcp"
+				},
+				{
+					"host": "192.168.1.40",
+					"port": 19132,
+					"type": "udp"
+				}
+			]
 		}
 	},
 	"operating_system": "windows",
