@@ -2,7 +2,7 @@
 ## A new way to monitor your networking
 
 ## Setup
-1. [Install InfluxDB] (https://docs.influxdata.com/influxdb/v2.1/install/) by following the steps to install and configure your bucket
+1. [Install InfluxDB](https://docs.influxdata.com/influxdb/v2.1/install/) by following the steps to install and configure your bucket
 2. Copy `config.example.json` to `config.json`
 3. Fill in the config.json file using the guild below
 4. Run VisiNet Monitoring using the run.bat script on windows or node . in a CLI
@@ -20,7 +20,7 @@
 			"network_issue-query_out": "file"
 		}
 	},
-	"influxdb": { // Does not currently support org/token methods [see this] (https://docs.influxdata.com/influxdb/v2.1/reference/api/influxdb-1x/#authenticate-with-a-username-and-password-scheme)
+	"influxdb": { // Does not currently support org/token methods [see this](https://docs.influxdata.com/influxdb/v2.1/reference/api/influxdb-1x/#authenticate-with-a-username-and-password-scheme)
 		"url": "INFLUX IP:PORT", // The IP:Port of your Influx instance for example 192.168.1.2:8086
 		"username": "INFLUX USERNAME", // The Username for your Influx instance
 		"password": "INFLUX PASSWORD", // The Password for your Influx instance
