@@ -1,0 +1,93 @@
+{
+	"log_level": 5,
+	"monitor_settings": { // Default settings, overridden by individual monitor settings
+		"heartbeat_interval": 60,
+		"retries": 0,
+		"retry_interval": 60,
+		"upside_down": false,
+		"was_it_dns": true // Enables special functions where ip addresses are saved to do regular pings, removing dns issues from the mix
+	},
+	"outputs": {
+		"log": true,
+	},
+	"monitors": {
+		"http": [{ // With full features: HTTP, Keyword, Ping, DNS
+			"name": "Default HTTP Monitor",
+			"URL": "https://visinet.charmines.dev/",
+			"keyword": "Visinet", // Check for existance, if not do not run a keyword check
+			"invert_keyword": false,
+			"ignore_ssl": false,
+			"status_codes": ["200-299", 123],
+			"max_redirects": 10,
+			"timeout": 48,
+			"http_options": {
+				"method": "GET",
+			},
+			"monitor_settings": { // Changes settings that are different from default
+				"heartbeat_interval": 60,
+				"retries": 0,
+				"retry_interval": 60,
+				"upside_down": false,
+				"was_it_dns": true // Enables special functions where ip addresses are saved to do regular pings, removing dns issues from the mix
+			},
+			"visinet_settings": {
+				"ping": true, // True/False or the ID/Name of a ping monitor to use instead, if true create a new ping monitor for this IP, if false no ping monitor
+				"dns": "0" // The ID of the dns monitor to use to check dns status of the machine and see if the host resolve to ip or false to disable, doesnt impact "was_it_dns"
+			}
+		}],
+		"ping": [{
+			"name": "Default Ping Monitor",
+			"hostname": "srv.charmines.dev",
+			"packet_size": 52,
+			"monitor_settings": { // Changes settings that are different from default
+				"heartbeat_interval": 60,
+				"retries": 0,
+				"retry_interval": 60,
+				"upside_down": false,
+				"was_it_dns": true // Enables special functions where ip addresses are saved to do regular pings, removing dns issues from the mix
+			},
+			"visinet_settings": { // DNS is not used if this monitor is used from another monitor
+				"dns": "0" // The ID of the dns monitor to use to check dns status of the machine and see if the host resolve to ip or false to disable, doesnt impact "was_it_dns"
+			}
+		}],
+		"tcp": [{
+			"name": "Default TCP Monitor",
+			"hostname": "srv.charmines.dev",
+			"port": 80,
+			"monitor_settings": { // Changes settings that are different from default
+				"heartbeat_interval": 60,
+				"retries": 0,
+				"retry_interval": 60,
+				"upside_down": false,
+				"was_it_dns": true // Enables special functions where ip addresses are saved to do regular pings, removing dns issues from the mix
+			},
+			"visinet_settings": {
+				"ping": true, // True/False or the ID/Name of a ping monitor to use instead, if true create a new ping monitor for this IP, if false no ping monitor
+				"dns": "0" // The ID of the dns monitor to use to check dns status of the machine and see if the host resolve to ip or false to disable, doesnt impact "was_it_dns"
+			}
+		}],
+		"dns": [{
+			"name": "Default DNS Monitor",
+			"hostname": "srv.charmines.dev", // A hostname to see if we get an address for
+			"record_type": "A", // The type of record to look for for ^
+			"resolver": ["1.1.1.1"], // Single or multiple servers to monitor, for the machine dns monitor only use the ones used by the machine
+			"resolver_port": 53, // Defaults to 53
+			"monitor_settings": { // Changes settings that are different from default
+				"heartbeat_interval": 60,
+				"retries": 0,
+				"retry_interval": 60,
+				"upside_down": false,
+				"was_it_dns": true // Enables special functions where ip addresses are saved to do regular pings, removing dns issues from the mix
+			},
+			"visinet_settings": {
+				"ping": true, // True/False or the ID/Name of a ping monitor to use instead, if true create a new ping monitor for this IP, if false no ping monitor
+			}
+		}],
+		"groups": [{ // Group monitors should return the status, percent of monitors affected, types of monitors affected
+			"name": "Default Group Monitor",
+			"children": { // List of monitor types
+				"ping": [0], // List of monitor ids or name of that type
+			},
+		}]
+	}
+}
